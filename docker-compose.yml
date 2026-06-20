@@ -1,0 +1,119 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: emitidagala_postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-emitidagala}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-emitidagala_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-emitidagala}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - emitidagala_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-emitidagala} -d ${POSTGRES_DB:-emitidagala}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: emitidagala_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - emitidagala_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: emitidagala_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-emitidagala}:${POSTGRES_PASSWORD:-emitidagala_secret}@postgres:5432/${POSTGRES_DB:-emitidagala}?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-emitidagala_jwt_secret_change_in_production}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-emitidagala_refresh_secret_change_in_production}
+      JWT_EXPIRY: ${JWT_EXPIRY:-15m}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
+      MTN_MOMO_API_KEY: ${MTN_MOMO_API_KEY:-}
+      MTN_MOMO_API_USER: ${MTN_MOMO_API_USER:-}
+      MTN_MOMO_COLLECTION_PRIMARY_KEY: ${MTN_MOMO_COLLECTION_PRIMARY_KEY:-}
+      MTN_MOMO_ENVIRONMENT: ${MTN_MOMO_ENVIRONMENT:-sandbox}
+      MTN_MOMO_CALLBACK_URL: ${MTN_MOMO_CALLBACK_URL:-http://localhost:3000/api/payments/mtn/callback}
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+      DEFAULT_COMMISSION_RATE: ${DEFAULT_COMMISSION_RATE:-10}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      APP_NAME: ${APP_NAME:-Emiti Dagala}
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - emitidagala_network
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run dev"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: emitidagala_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      VITE_API_URL: http://localhost:3000/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - emitidagala_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: emitidagala_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/sites:/etc/nginx/sites-enabled
+      - ./uploads:/var/www/uploads
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - emitidagala_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  emitidagala_network:
+    driver: bridge

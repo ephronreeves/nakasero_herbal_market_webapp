@@ -1,0 +1,9 @@
+# Emiti Dagala - Automated Database Backup Cron Job
+# Install with: crontab scripts/cron-backup
+# Or symlink: ln -sf $(pwd)/scripts/cron-backup /etc/cron.d/emitidagala-backup
+
+# Daily backup at 2:00 AM
+0 2 * * * root /usr/local/bin/docker-compose -f /opt/emitidagala/docker-compose.yml exec -T postgres pg_dump -U emitidagala emitidagala | gzip > /opt/emitidagala/database/backups/emitidagala_$(date +\%Y\%m\%d).sql.gz
+
+# Keep only last 30 days
+0 3 * * * root find /opt/emitidagala/database/backups -name "emitidagala_*.sql.gz" -mtime +30 -delete
