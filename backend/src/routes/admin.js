@@ -16,5 +16,7 @@ router.get('/settings', ctrl.getSettings);
 router.put('/settings', ctrl.updateSettings);
 router.get('/reviews', ctrl.getReviews);
 router.patch('/reviews/:id', ctrl.moderateReview);
+router.delete('/reviews/:id', ctrl.deleteReview);
+router.post('/reviews/generate-mock', ctrl.generateMockReviews);
 
 module.exports = router;

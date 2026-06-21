@@ -25,7 +25,7 @@ process payments — while customers can browse, search, review, and purchase wi
 | F4 | Category browsing with hierarchical taxonomy | High |
 | F5 | Shopping cart and checkout workflow | High |
 | F6 | Order management with status tracking | High |
-| F7 | Payment integration (MTN Mobile Money) | High |
+| F7 | Payment integration (MTN Mobile Money, Airtel Money, Visa Card, Apple Pay) | High |
 | F8 | Full-text search across products | Medium |
 | F9 | Product reviews and ratings | Medium |
 | F10 | Vendor payout management | Medium |
@@ -83,7 +83,7 @@ process payments — while customers can browse, search, review, and purchase wi
 | **Cache** | Redis 7 | Session cache, rate limiting |
 | **Reverse Proxy** | Nginx (Alpine) | Routing, static files, SSL |
 | **Container** | Docker + Compose | Dev & production orchestration |
-| **Payments** | MTN MoMo API | Mobile money processing |
+| **Payments** | MTN MoMo, Airtel Money, Visa, Apple Pay | Multi-method payment processing |
 
 ### 3.3 Data Flow
 
@@ -131,7 +131,7 @@ Nginx (port 80/443)
 └──────────┘     └──────────┘
 ```
 
-### Full Schema (14 Models)
+### Full Schema (16 Models)
 
 | Model | Fields | Key Relations |
 |---|---|---|
@@ -200,6 +200,24 @@ await tx.cartItem.deleteMany({ where: { userId } });
 - Indexed `[userId, vendorId, orderNumber]` in Order table
 - Selective field projection using Prisma `select` to minimize data transfer
 - Pagination via `skip`/`take` with total count
+
+### 5.4 Seed Data Overview
+
+The seed script (`backend/prisma/seed.js`) populates the database with production-like test data:
+
+| Entity | Quantity | Details |
+|---|---|---|
+| **Users** | 7 | 1 Admin, 3 Vendors, 3 Customers |
+| **Vendors** | 3 | Nakasero Spice House, Kampala Grain & Seed Co., Jinja Herbal Remedies |
+| **Categories** | 10 | Immune Support, Digestive Health, Spices & Seasonings, Seeds & Grains, etc. |
+| **Products** | 23 | Distributed across 3 vendors with real image slugs matching uploaded files |
+| **Addresses** | 3 | One per customer |
+| **Reviews** | 69 | Curated + auto-generated reviews across all product-customer pairs with varied ratings |
+| **Orders** | 6 | Mixed statuses (DELIVERED, SHIPPED, PROCESSING, PENDING) with items and payments |
+| **Payments** | 6 | Transactions across MTN MoMo, Airtel Money, Visa, Apple Pay matching order statuses |
+| **Settings** | 5 | Commission rate, delivery fee, platform name, etc. |
+
+All vendor descriptions include rich store stories (about, specialties, hours) displayed on the public vendor detail pages.
 
 ---
 
@@ -281,12 +299,20 @@ The admin dashboard (`/api/admin/dashboard`) aggregates:
 
 | Metric | Query | Visualization |
 |---|---|---|
+| Total Customers | `COUNT(user) WHERE role = CUSTOMER` | Stat card |
+| Total Vendors | `COUNT(vendor)` | Stat card |
+| Active Vendors | `COUNT(vendor) WHERE status = APPROVED` | Stat card |
+| Total Products | `COUNT(product) WHERE status = APPROVED` | Stat card |
+| Total Orders | `COUNT(order)` | Stat card |
 | Total Revenue | `SUM(order.total) WHERE status = DELIVERED` | Stat card |
-| Monthly Sales | `GROUP BY month ORDER BY month` | Line chart (Recharts) |
-| Top Vendors | `GROUP BY vendorId ORDER BY SUM(total) DESC LIMIT 10` | Bar chart |
-| Product Categories | `GROUP BY categoryId` | Pie chart |
-| Order Status | `GROUP BY status` | Doughnut chart |
-| Recent Orders | `ORDER BY createdAt DESC LIMIT 5` | Table |
+| Total Commission | `SUM(order.commissionAmount)` | Stat card |
+| Top Products | `ORDER BY totalSales DESC LIMIT 10` | Ranked list with revenue |
+| Top Vendors | `ORDER BY totalEarnings DESC LIMIT 10` | Ranked list with metrics |
+
+The frontend `AdminDashboard.jsx` renders:
+- **7 stat cards** in a responsive grid (Customers, Vendors, Active Vendors, Products, Orders, Revenue, Commission)
+- **Top Products** table — product name, vendor, units sold, total revenue
+- **Top Vendors** table — store name, product/order count, earnings, sales
 
 ### 7.2 Vendor Analytics
 
@@ -299,6 +325,19 @@ Vendor-specific (`/api/dashboard/vendor`):
 | Order fulfillment | Order counts by status |
 | Payout history | Payout records |
 | Low stock alerts | Products where stockQuantity < lowStockThreshold |
+
+### 7.3 Vendor Public Page
+
+Each vendor's public page (`/vendor/:slug`) displays:
+
+| Section | Content |
+|---|---|
+| **Hero** | Colored gradient banner, logo, store name, tagline, verification badge |
+| **About** | Full store story with paragraphs describing the vendor's history and mission |
+| **Specialties** | Specialty products rendered as tags/chips |
+| **Contact** | Phone number (with tel: link), email (with mailto: link), address |
+| **Hours** | Operating hours |
+| **Products** | Full product grid with images, prices, links to detail pages |
 
 ### 7.3 Frontend Visualization Stack
 
@@ -392,27 +431,50 @@ jobs:
 ## 9. API Endpoint Reference
 
 | Method | Endpoint | Auth | Description |
-|---|---|---|---|
+|---|---|---|---|---|
 | POST | /api/auth/register | None | Register customer |
 | POST | /api/auth/login | None | Login |
 | POST | /api/auth/refresh | None | Refresh token |
 | GET | /api/auth/me | All | Current user |
-| GET | /api/products | Optional | List products (paginated) |
-| GET | /api/products/:slug | Optional | Product detail |
+| GET | /api/products | Optional | List products (paginated, filterable) |
+| GET | /api/products/:slug | Optional | Product detail with images |
 | POST | /api/products | VENDOR/ADMIN | Create product |
 | PUT | /api/products/:id | VENDOR/ADMIN | Update product |
 | DELETE | /api/products/:id | VENDOR/ADMIN | Delete product |
 | GET | /api/categories | None | List categories |
-| GET | /api/vendors | None | List vendors |
+| GET | /api/vendors | None | List approved vendors |
+| GET | /api/vendors/:slug | None | Vendor detail with products |
 | POST | /api/vendors/register | All | Register as vendor |
-| GET | /api/cart | All | Get cart |
+| GET | /api/vendor/store | VENDOR | Get own store settings |
+| PUT | /api/vendor/store | VENDOR | Update store settings |
+| GET | /api/cart | All | Get cart items |
 | POST | /api/cart | All | Add to cart |
-| POST | /api/orders | All | Create order |
-| GET | /api/orders | All | List orders |
-| GET | /api/search?q= | None | Full-text search |
-| GET | /api/admin/dashboard | ADMIN | Platform analytics |
+| PUT | /api/cart/:id | All | Update cart item |
+| DELETE | /api/cart/:id | All | Remove cart item |
+| POST | /api/orders | All | Create order from cart |
+| GET | /api/orders | All | List own orders |
+| GET | /api/orders/:id | All | Order detail |
 | PATCH | /api/orders/:id/status | VENDOR/ADMIN | Update order status |
-| POST | /api/payments/mtn/initiate | All | Initiate MoMo payment |
+| GET | /api/search?q= | None | Full-text search |
+| POST | /api/reviews | All | Submit product review |
+| GET | /api/admin/dashboard | ADMIN | Platform analytics (stats, top products, top vendors) |
+| GET | /api/admin/vendors | ADMIN | List all vendors with details |
+| PATCH | /api/admin/vendors/:id | ADMIN | Update vendor status/commission |
+| GET | /api/admin/products | ADMIN | List all products |
+| GET | /api/admin/orders | ADMIN | List all orders |
+| GET | /api/admin/payments | ADMIN | List all payments |
+| GET | /api/admin/reviews | ADMIN | List unmoderated reviews |
+| PATCH | /api/admin/reviews/:id | ADMIN | Moderate review |
+| GET | /api/admin/settings | ADMIN | Get platform settings |
+| PUT | /api/admin/settings | ADMIN | Update platform setting |
+| GET | /api/payments/methods | None | List available payment methods with logos |
+| POST | /api/payments/initiate | All | Initiate payment (any method) |
+| GET | /api/payments/verify/:orderId | All | Verify payment status |
+| POST | /api/payments/callback | None | Payment provider callback |
+| POST | /api/payments/mtn/initiate | All | Initiate MoMo payment (legacy) |
+| POST | /api/payments/mtn/callback | None | MTN callback (legacy) |
+| POST | /api/admin/reviews/generate-mock | ADMIN | Generate mock reviews |
+| DELETE | /api/admin/reviews/:id | ADMIN | Delete a review |
 
 ---
 
@@ -425,7 +487,7 @@ jobs:
 | API Response (cached) | <100ms |
 | API Response (DB) | <300ms |
 | Frontend Build | ~7s |
-| DB Seed Time | ~2s |
+| DB Seed Time | ~4s (23 products, 6 orders, 69 reviews) |
 
 ### Scalability Strategies
 

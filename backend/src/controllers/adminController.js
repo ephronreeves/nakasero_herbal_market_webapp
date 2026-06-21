@@ -168,21 +168,42 @@ exports.getSettings = async (req, res) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { key, value } = req.body;
-    const setting = await prisma.siteSetting.upsert({
-      where: { key },
-      update: { value },
-      create: { key, value },
-    });
+    const body = req.body;
+
+    if (body.key && body.value !== undefined) {
+      const setting = await prisma.siteSetting.upsert({
+        where: { key: body.key },
+        update: { value: body.value },
+        create: { key: body.key, value: body.value },
+      });
+
+      await logAction({
+        userId: req.user.id,
+        action: 'SETTINGS_UPDATED',
+        entity: 'SiteSetting',
+        description: `Setting ${body.key} updated`,
+      });
+
+      return res.json(setting);
+    }
+
+    const entries = Object.entries(body);
+    for (const [key, value] of entries) {
+      await prisma.siteSetting.upsert({
+        where: { key },
+        update: { value },
+        create: { key, value },
+      });
+    }
 
     await logAction({
       userId: req.user.id,
       action: 'SETTINGS_UPDATED',
       entity: 'SiteSetting',
-      description: `Setting ${key} updated`,
+      description: 'Multiple settings updated',
     });
 
-    res.json(setting);
+    res.json({ success: true });
   } catch (error) {
     next(error);
   }
@@ -191,14 +212,14 @@ exports.updateSettings = async (req, res, next) => {
 exports.getReviews = async (req, res, next) => {
   try {
     const reviews = await prisma.review.findMany({
-      where: { isApproved: false },
+      orderBy: { createdAt: 'desc' },
       include: {
         user: { select: { id: true, firstName: true, lastName: true } },
         product: { select: { id: true, name: true, slug: true } },
       },
-      orderBy: { createdAt: 'desc' },
     });
-    res.json(reviews);
+    const total = reviews.length;
+    res.json({ reviews, total });
   } catch (error) {
     next(error);
   }
@@ -207,14 +228,99 @@ exports.getReviews = async (req, res, next) => {
 exports.moderateReview = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { isApproved } = req.body;
+    const { hidden, isApproved } = req.body;
 
     const review = await prisma.review.update({
       where: { id },
-      data: { isApproved },
+      data: {
+        ...(hidden !== undefined ? { hidden } : {}),
+        ...(isApproved !== undefined ? { isApproved } : {}),
+      },
     });
 
     res.json(review);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteReview = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await prisma.review.delete({ where: { id } });
+
+    await logAction({
+      userId: req.user.id,
+      action: 'REVIEW_DELETED',
+      entity: 'Review',
+      entityId: id,
+      description: 'Review deleted by admin',
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.generateMockReviews = async (req, res, next) => {
+  try {
+    const products = await prisma.product.findMany({
+      where: { status: 'APPROVED' },
+      take: 20,
+    });
+
+    const customers = await prisma.user.findMany({
+      where: { role: 'CUSTOMER' },
+    });
+
+    if (products.length === 0 || customers.length === 0) {
+      return res.status(400).json({ error: 'Need both products and customers to generate reviews' });
+    }
+
+    const reviewTemplates = [
+      { rating: 5, comment: 'Absolutely fantastic product! Exceeded my expectations. Will definitely order again.' },
+      { rating: 5, comment: 'Pure quality! You can tell this is sourced from the best places. Highly recommend.' },
+      { rating: 4, comment: 'Great quality and fast delivery. Very happy with my purchase.' },
+      { rating: 4, comment: 'Good value for money. The product works as described.' },
+      { rating: 5, comment: 'I have been using this for a week now and I can already feel the difference. Amazing!' },
+      { rating: 4, comment: 'Authentic product. Packaged well and arrived on time.' },
+      { rating: 3, comment: 'Decent product for the price. Could improve on packaging.' },
+      { rating: 5, comment: 'My whole family loves this! We are repeat customers for a reason.' },
+      { rating: 4, comment: 'Very good quality. Would recommend to anyone looking for natural products.' },
+      { rating: 5, comment: 'Outstanding! The purity and freshness are unmatched. Five stars!' },
+      { rating: 4, comment: 'Reliable vendor with consistent quality. My third time ordering.' },
+      { rating: 5, comment: 'Life-changing product! So glad I found this marketplace.' },
+      { rating: 4, comment: 'Good traditional medicine quality. Just as described.' },
+      { rating: 3, comment: 'It works but takes time. Be patient with natural remedies.' },
+      { rating: 5, comment: 'Perfect for my daily wellness routine. Excellent quality.' },
+    ];
+
+    let createdCount = 0;
+
+    for (const product of products) {
+      for (const customer of customers) {
+        const existing = await prisma.review.findUnique({
+          where: { productId_userId: { productId: product.id, userId: customer.id } },
+        });
+        if (existing) continue;
+
+        const template = reviewTemplates[Math.floor(Math.random() * reviewTemplates.length)];
+
+        await prisma.review.create({
+          data: {
+            productId: product.id,
+            userId: customer.id,
+            rating: template.rating,
+            comment: template.comment,
+            isApproved: Math.random() > 0.3,
+          },
+        });
+        createdCount++;
+      }
+    }
+
+    res.json({ success: true, count: createdCount, message: `Generated ${createdCount} mock reviews` });
   } catch (error) {
     next(error);
   }

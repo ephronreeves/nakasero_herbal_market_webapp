@@ -20,9 +20,9 @@
 | Role | Email | Password |
 |---|---|---|
 | **Admin** | admin@emitidagala.com | admin123 |
-| **Vendor 1** | herbalife@emitidagala.com | vendor123 |
-| **Vendor 2** | nature@emitidagala.com | vendor123 |
-| **Vendor 3** | green@emitidagala.com | vendor123 |
+| **Vendor 1** | spices@emitidagala.com | vendor123 |
+| **Vendor 2** | grains@emitidagala.com | vendor123 |
+| **Vendor 3** | herbal@emitidagala.com | vendor123 |
 | **Customer** | alice@example.com | customer123 |
 | **Customer** | bob@example.com | customer123 |
 | **Customer** | carol@example.com | customer123 |
@@ -43,7 +43,7 @@
    - Average rating and review count
    - Vendor name
 
-![Home Page](https://via.placeholder.com/800x400?text=Home+Page+Screenshot)
+*[Screenshot: Home page showing featured herbal products, category navigation, and search bar]*
 
 ### 1.2 Product Details
 
@@ -52,7 +52,7 @@
 3. View vendor information and store name
 4. Set quantity and click **Add to Cart**
 
-![Product Detail](https://via.placeholder.com/800x400?text=Product+Detail+Screenshot)
+*[Screenshot: Product detail page with full description, images, reviews, and Add to Cart button]*
 
 ### 1.3 Cart & Checkout
 
@@ -61,10 +61,23 @@
 3. Click **Proceed to Checkout**
 4. Enter or select your delivery address
 5. Review order summary (subtotal, delivery fee, total)
-6. Choose payment method (MTN Mobile Money)
+6. Choose a payment method:
+   - **MTN Mobile Money** — Enter your MTN phone number to pay via MoMo
+   - **Airtel Money** — Enter your Airtel phone number to pay via Airtel Money
+   - **Visa Card** — Enter card number, expiry, and CVV
+   - **Apple Pay** — Follow the Apple Pay instructions on screen
 7. Click **Place Order**
 
-### 1.4 Registration
+### 1.4 Submitting Reviews
+
+1. View a **Product Detail** page
+2. Scroll to the **Reviews** section
+3. Select a rating (1–5 stars)
+4. Write your review comment
+5. Click **Submit Review**
+6. Reviews are visible immediately after admin moderation approval
+
+### 1.5 Registration
 
 1. Click **Register** on the login page
 2. Fill in your details (name, email, password)
@@ -77,7 +90,7 @@
 
 ### 2.1 Vendor Dashboard
 
-1. Log in as a vendor (e.g., herbalife@emitidagala.com / vendor123)
+1. Log in as a vendor (e.g., spices@emitidagala.com / vendor123)
 2. Navigate to **Dashboard** in the sidebar
 3. View key metrics:
    - **Total Sales** — Revenue from all orders
@@ -85,7 +98,7 @@
    - **Average Rating** — Customer satisfaction score
    - **Pending Orders** — Orders awaiting processing
 
-![Vendor Dashboard](https://via.placeholder.com/800x400?text=Vendor+Dashboard+Screenshot)
+*[Screenshot: Vendor dashboard showing Total Sales, Total Orders, Average Rating, Pending Orders stat cards]*
 
 ### 2.2 Product Management (Inventory)
 
@@ -101,7 +114,7 @@
 5. **Edit Product**: Click pencil icon on any product
 6. **Delete Product**: Click trash icon (confirm dialog)
 
-![Product Form](https://via.placeholder.com/800x400?text=Add+Product+Form+Screenshot)
+*[Screenshot: Add Product form with fields for name, description, price, stock, category, and image upload]*
 
 ### 2.3 Order Fulfillment
 
@@ -126,7 +139,22 @@
 2. View payout history with amounts, commission, and net amount
 3. Track pending vs paid payouts
 
-### 2.6 Store Settings
+### 2.6 Public Store Page
+
+Each vendor has a public storefront page visible to all visitors:
+
+1. **URL**: `/vendor/{store-slug}` (e.g., `/vendor/nakasero-spice-house`)
+2. The page displays:
+   - **Hero banner** — Colorful gradient header with store logo, name, and verification badge
+   - **About section** — Store history and mission story
+   - **Specialties** — Highlighted products as clickable tags
+   - **Contact info** — Phone number (clickable), email (clickable), physical address
+   - **Hours** — Operating hours
+   - **Products grid** — All approved products from the vendor
+
+These pages are public and do not require login to browse.
+
+### 2.7 Store Settings
 
 1. Click **Store** in the sidebar
 2. Update your store name, description, logo, banner
@@ -140,22 +168,34 @@
 
 1. Log in as admin (admin@emitidagala.com / admin123)
 2. Navigate to **Dashboard**
-3. View platform-wide metrics:
-   - **Total Revenue** — Platform earnings
-   - **Total Vendors** — Registered vendors
-   - **Total Products** — Approved products
-   - **Total Orders** — All orders
-   - **Pending Approvals** — New vendor/product requests
+3. View platform-wide metrics in **7 stat cards**:
+   - **Total Customers** — Registered customer accounts
+   - **Total Vendors** — All registered vendors
+   - **Active Vendors** — Vendors with APPROVED status
+   - **Total Products** — Approved and listed products
+   - **Total Orders** — All orders across the platform
+   - **Total Revenue** — Platform earnings from delivered orders
+   - **Total Commission** — Platform commission collected
+4. **Top Products** section — 10 best-selling products ranked by sales, with vendor name and revenue
+5. **Top Vendors** section — 10 top-earning vendors with product/order counts
 
-![Admin Dashboard](https://via.placeholder.com/800x400?text=Admin+Dashboard+Screenshot)
+*[Screenshot: Admin dashboard with 7 stat cards (Customers, Vendors, Products, Orders, Revenue, Commission) and top products/vendors tables]*
 
 ### 3.2 Vendor Management
 
 1. Click **Vendors** in the sidebar
-2. View all vendors with status (Pending/Approved/Suspended)
-3. **Approve** new vendor registrations
-4. **Suspend** vendors violating policies
-5. View each vendor's products, sales, and performance
+2. View summary cards: Total Vendors, Approved, Pending
+3. View all vendors in a table with columns:
+   - **Store** — Name, owner name, link to public store page
+   - **Contact** — Email and phone
+   - **Products** — Product count
+   - **Orders** — Order count
+   - **Commission** — Click to edit commission rate (%)
+   - **Status** — Pending / Approved / Suspended badge
+   - **Actions** — Approve or Suspend vendors
+4. Click **Approve** to activate a pending/suspended vendor
+5. Click **Suspend** to deactivate an approved vendor
+6. Click the commission rate to edit it inline
 
 ### 3.3 Product Moderation
 
@@ -180,32 +220,49 @@
 ### 3.6 Platform Settings
 
 1. Click **Settings** in the sidebar
-2. Configure:
-   - Default commission rate (%)
-   - Delivery fee
-   - Free delivery threshold
-   - Platform name and tagline
+2. The settings page has **6 tabbed sections**:
+   - **General** — Platform name, tagline, contact email, maintenance mode
+   - **Payments** — Toggle payment methods on/off (MTN, Airtel, Visa, Apple Pay)
+   - **Delivery** — Delivery fee, free delivery threshold, estimated delivery days
+   - **Social** — Social media links (Facebook, Twitter, Instagram)
+   - **SEO** — Meta title, description, Google Analytics ID
+   - **Advanced** — Default commission rate, minimum payout threshold
 
 ---
 
 ## 4. Navigation Summary
 
 | Page | Route | Access |
-|---|---|---|
+|---|---|---|---|
 | Home | `/` | Public |
 | Products | `/products` | Public |
-| Product Detail | `/products/:slug` | Public |
+| Product Detail | `/product/:slug` | Public |
+| Vendors | `/vendors` | Public |
+| Vendor Detail | `/vendor/:slug` | Public |
 | Categories | `/categories` | Public |
-| Cart | `/cart` | Customer |
-| Checkout | `/checkout` | Customer |
+| Search | `/search?q=` | Public |
+| Cart | `/cart` | All |
+| Checkout | `/checkout` | Customer+ |
 | Login | `/login` | Public |
 | Register | `/register` | Public |
+| Customer Dashboard | `/dashboard` | Customer |
+| Customer Orders | `/dashboard/orders` | Customer |
+| Customer Wishlist | `/dashboard/wishlist` | Customer |
+| Customer Profile | `/dashboard/profile` | All |
 | Vendor Dashboard | `/vendor/dashboard` | Vendor |
-| Vendor Inventory | `/vendor/products` | Vendor |
+| Vendor Products | `/vendor/products` | Vendor |
 | Vendor Orders | `/vendor/orders` | Vendor |
+| Vendor Analytics | `/vendor/analytics` | Vendor |
+| Vendor Payouts | `/vendor/payouts` | Vendor |
+| Vendor Inventory | `/vendor/inventory` | Vendor |
+| Vendor Store Settings | `/vendor/store` | Vendor |
 | Admin Dashboard | `/admin/dashboard` | Admin |
 | Admin Vendors | `/admin/vendors` | Admin |
 | Admin Products | `/admin/products` | Admin |
+| Admin Orders | `/admin/orders` | Admin |
+| Admin Payments | `/admin/payments` | Admin |
+| Admin Settings | `/admin/settings` | Admin |
+| Admin Reviews | `/admin/reviews` | Admin |
 
 ---
 
@@ -217,7 +274,7 @@
 | 500 error on pages | Ensure Docker containers are running (`docker compose ps`) |
 | Products not loading | Verify DB is seeded (`docker compose exec backend node prisma/seed.js`) |
 | Images not showing | Placeholder images are used; real images need upload |
-| Payment fails | MTN MoMo is in sandbox mode; no real transactions occur |
+| Payment fails | All payment methods are in sandbox/test mode; no real transactions occur |
 
 ---
 

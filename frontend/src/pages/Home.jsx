@@ -34,7 +34,7 @@ export default function Home() {
               <span className="text-primary-600">Herbal Marketplace</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              Discover authentic herbal medicine products from verified vendors. Natural health, trusted vendors.
+              Discover authentic herbal products from verified vendors. Natural health, trusted vendors.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/products" className="btn-primary text-lg px-8 py-3">Browse Products</Link>

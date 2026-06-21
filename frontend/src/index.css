@@ -5,6 +5,15 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  input, select, textarea, button {
+    font-size: 16px;
   }
 }
 
@@ -55,5 +64,19 @@
 
   .badge-info {
     @apply badge bg-blue-100 text-blue-800;
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

@@ -34,7 +34,7 @@ export default function Vendors() {
                 ) : '🏪'}
               </div>
               <h3 className="font-semibold text-gray-900 group-hover:text-primary-600">{vendor.storeName}</h3>
-              {vendor.description && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{vendor.description}</p>}
+              {vendor.storeDescription && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{vendor.storeDescription}</p>}
               <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-500">
                 <span>🌿 {vendor._count?.products || 0} products</span>
                 {vendor.averageRating > 0 && <span>⭐ {vendor.averageRating.toFixed(1)}</span>}
