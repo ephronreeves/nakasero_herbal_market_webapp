@@ -354,6 +354,12 @@ The frontend implements a **Glassmorphism** design system characterized by:
 | **Buttons & inputs** | Semi-transparent colored backgrounds with blurred edges and glass borders |
 | **Colour palette** | Green (`primary`) + Purple (`herbal`) brand tones, balanced with grey accents |
 
+**SafeImage Component** (`src/components/SafeImage.jsx`):
+- Wraps `<img>` with error-state handling via React `onError` + `useState`
+- If `src` is empty/null or the image fails to load, renders a placeholder div with a fallback icon (`🌿` default, configurable via `fallback` prop)
+- Applied across all pages displaying product thumbnails or vendor logos (Home, Products, ProductDetail, Cart, Search, Wishlist, admin and vendor panels)
+- Prevents broken image icons from appearing in the UI when image files are missing
+
 **Product Quick View Modal** (`src/components/ProductQuickView.jsx`):
 - Triggered by clicking any product card on Home, Products, or Search pages (replaces direct link navigation)
 - React Portal renders the modal above all content
@@ -384,9 +390,97 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 
 ---
 
-## 8. Cloud Deployment Steps
+## 8. File Storage & Static Serving
 
-### 8.1 Docker-Based Deployment (Current)
+### 8.1 Upload Directory Structure
+
+```
+uploads/
+├── products/    # Product images (JPEG, PNG, WebP)
+├── logos/       # Payment method logos (Airtel, MTN MoMo)
+└── documents/   # Vendor documents
+```
+
+The `uploads/` directory lives at the project root and is mounted into the backend container via Docker volumes:
+```yaml
+# docker-compose.yml
+backend:
+  volumes:
+    - ./uploads:/app/uploads
+```
+
+### 8.2 Storage Service
+
+`backend/src/services/storage.js` handles file persistence:
+
+```javascript
+const UPLOAD_DIR = path.join(__dirname, '../../../uploads');
+// Resolves to: /app/uploads (inside container) = ./uploads/ (on host)
+```
+
+| Method | Function |
+|---|---|
+| `upload(file, subDir)` | Resizes images to 1200×1200 via Sharp, saves to `{UPLOAD_DIR}/{subDir}/`, returns URL object |
+| `delete(filePath)` | Removes file from disk |
+
+The returned URL uses the `/api/uploads/` prefix (e.g., `/api/uploads/products/moringa-capsules.jpg`), which the frontend requests through the Vite dev server proxy.
+
+### 8.3 Static File Serving
+
+`backend/src/app.js` mounts Express static middleware at `/api/uploads`:
+
+```javascript
+app.use('/api/uploads', express.static(path.join(__dirname, '../../uploads')));
+// Mount point: /api/uploads
+// Root directory: /app/uploads (inside container)
+```
+
+Requests to `GET /api/uploads/products/moringa-capsules.jpg` serve the file directly without hitting any route handler.
+
+### 8.4 Vite Dev Server Proxy
+
+The frontend Vite dev server proxies `/api` and `/api/uploads` requests to the backend:
+
+```javascript
+// frontend/vite.config.js
+proxy: {
+  '/api/uploads': { target: 'http://backend:3000', changeOrigin: true },
+  '/api':         { target: 'http://backend:3000', changeOrigin: true },
+  '/uploads':     { target: 'http://backend:3000', changeOrigin: true },
+}
+```
+
+In Docker Compose, the `VITE_API_PROXY_TARGET` environment variable overrides the target:
+```yaml
+# docker-compose.yml
+frontend:
+  environment:
+    VITE_API_PROXY_TARGET: http://backend:3000
+```
+
+Inside the frontend container, `localhost:3000` would not reach the backend (different container), so the Docker service name `backend` must be used.
+
+### 8.5 SafeImage Component
+
+`frontend/src/components/SafeImage.jsx` is a React wrapper that handles missing or broken images:
+
+```jsx
+function SafeImage({ src, alt, className, fallback = '🌿', fallbackClass = '' }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) {
+    return <div className={...}><span>{fallback}</span></div>;
+  }
+  return <img src={src} alt={alt} className={className} onError={() => setFailed(true)} />;
+}
+```
+
+Used across 12+ component files to prevent broken image icons from appearing in the UI when image files are missing or the server is unreachable.
+
+---
+
+## 9. Cloud Deployment Steps
+
+### 9.1 Docker-Based Deployment (Current)
 
 ```bash
 # Build and start all services
@@ -397,7 +491,7 @@ docker-compose exec backend npx prisma db push
 docker-compose exec backend node prisma/seed.js
 ```
 
-### 8.2 Production Deployment (VPS/Cloud)
+### 9.2 Production Deployment (VPS/Cloud)
 
 **Recommended Provider:** Hetzner, DigitalOcean, or AWS EC2
 
@@ -436,7 +530,7 @@ services:
 6. **SSL** — Use Caddy or Nginx Proxy Manager for Let's Encrypt
 7. **Backup** — Automated `pg_dump` via cron (included in `scripts/`)
 
-### 8.3 CI/CD Pipeline (Future)
+### 9.3 CI/CD Pipeline (Future)
 
 ```yaml
 # .github/workflows/deploy.yml
@@ -455,7 +549,7 @@ jobs:
 
 ---
 
-## 9. API Endpoint Reference
+## 10. API Endpoint Reference
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|---|
@@ -505,7 +599,7 @@ jobs:
 
 ---
 
-## 10. Performance & Scalability
+## 11. Performance & Scalability
 
 ### Current Performance (Docker Dev)
 
@@ -526,7 +620,7 @@ jobs:
 
 ---
 
-## 11. Conclusion
+## 12. Conclusion
 
 Emiti Dagala delivers a production-ready multi-vendor e-commerce platform tailored for
 the herbal medicine market. Built with modern JavaScript technologies and containerized

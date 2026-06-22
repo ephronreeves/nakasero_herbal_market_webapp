@@ -63,7 +63,7 @@ docker-compose exec backend node prisma/seed.js
 ```
 ├── frontend/          # React + Vite + Tailwind CSS (Glassmorphism UI)
 │   ├── src/
-│   │   ├── components/  # Reusable components (ProductQuickView, etc.)
+│   │   ├── components/  # Reusable components (SafeImage, ProductQuickView, etc.)
 │   │   ├── pages/       # Page components (Home, Products, ProductDetail, etc.)
 │   │   ├── layouts/     # Layout components (MainLayout, DashboardLayout)
 │   │   ├── contexts/    # React contexts (AuthContext)
@@ -86,7 +86,7 @@ docker-compose exec backend node prisma/seed.js
 ├── docker/            # Docker helper files
 ├── nginx/             # Nginx configuration
 ├── scripts/           # Utility scripts (backup, restore)
-├── uploads/           # File uploads (products, logos)
+├── uploads/           # File uploads (products/, logos/) — mounted into backend container
 ├── docker-compose.yml # Docker Compose configuration
 ├── docker-compose.prod.yml # Production deployment config
 └── .env               # Environment variables
@@ -264,6 +264,7 @@ The application is designed for deployment to any VPS with Docker:
 
 ## UI Features
 
+- **SafeImage Component** — Gracefully handles missing/broken image files: falls back to a placeholder icon when an image fails to load, so pages never show broken image icons
 - **Glassmorphism Design** — Frosted glass effect with backdrop blur, semi-transparent backgrounds, soft shadows
 - **Grey-toned theme** — Balanced grey accents integrated with green (primary) and purple (herbal) brand colors
 - **Product Quick View** — Click any product card to open a glass modal with full product info (ingredients, stock status, images, pricing) before navigating to detail page

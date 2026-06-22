@@ -169,6 +169,13 @@ These pages are public and do not require login to browse.
 2. Update your store name, description, logo, banner
 3. View your public store page URL
 
+### 2.8 Product Images & Uploads
+
+- Product images are stored in the `uploads/products/` directory at the project root
+- For local development, place image files directly in `uploads/products/` matching the product image URLs in the database
+- The **SafeImage** component prevents broken image icons — if an image file is missing, a fallback placeholder icon is shown instead
+- Image files are served through the backend at `/api/uploads/products/` and proxied through Vite during development
+
 ---
 
 ## 3. Admin Interface
@@ -278,12 +285,13 @@ These pages are public and do not require login to browse.
 ## 5. Troubleshooting
 
 | Issue | Solution |
-|---|---|
+|---|---|---|
 | Cannot log in | Check credentials; ensure account is active |
 | 500 error on pages | Ensure Docker containers are running (`docker compose ps`) |
 | Products not loading | Verify DB is seeded (`docker compose exec backend node prisma/seed.js`) |
-| Images not showing | Placeholder images are used; real images need upload |
+| Images not showing placeholder | The **SafeImage** component gracefully handles missing files by showing a fallback icon (🌿). Upload actual image files to `uploads/products/` via the vendor dashboard. |
 | Payment fails | All payment methods are in sandbox/test mode; no real transactions occur |
+| Docker proxy errors | If Vite returns 500 on API/upload requests, ensure `VITE_API_PROXY_TARGET` is set to `http://backend:3000` in docker-compose.yml for the frontend service |
 
 ---
 

@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
+import SafeImage from '../components/SafeImage';
 import toast from 'react-hot-toast';
 
 export default function ProductDetail() {
   const { slug } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +31,7 @@ export default function ProductDetail() {
   }, [slug]);
 
   const handleAddToCart = async () => {
+    if (!user) { navigate('/login'); return; }
     setAdding(true);
     try {
       await api.post('/cart', { productId: product.id, quantity });
@@ -81,19 +86,18 @@ export default function ProductDetail() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
         <div>
-          <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4">
-            {images[selectedImage]?.url ? (
-              <img src={images[selectedImage].url} alt={product.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-6xl text-gray-300">🌿</div>
-            )}
+          <div className="aspect-square bg-gray-100/70 rounded-xl overflow-hidden mb-4">
+            <SafeImage src={images[selectedImage]?.url} alt={product.name}
+              className="w-full h-full object-cover" fallbackClass="text-6xl" />
           </div>
           {images.length > 1 && (
             <div className="flex gap-2 overflow-x-auto">
               {images.map((img, i) => (
                 <button key={i} onClick={() => setSelectedImage(i)}
                   className={`w-20 h-20 shrink-0 rounded-lg overflow-hidden border-2 ${i === selectedImage ? 'border-primary-500' : 'border-transparent'}`}>
-                  {img.url ? <img src={img.url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl text-gray-300">🌿</div>}
+                  <SafeImage key={i} src={img.url} alt=""
+                    className={`w-20 h-20 shrink-0 rounded-lg overflow-hidden border-2 ${i === selectedImage ? 'border-primary-500' : 'border-transparent'}`}
+                    fallbackClass="text-xl" />
                 </button>
               ))}
             </div>
@@ -234,9 +238,10 @@ export default function ProductDetail() {
           </div>
 
           {product.vendor && (
-            <Link to={`/vendor/${product.vendor.storeSlug}`} className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-              <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-xl">
-                {product.vendor.storeLogo ? <img src={product.vendor.storeLogo} className="w-full h-full rounded-full object-cover" /> : '🏪'}
+            <Link to={`/vendor/${product.vendor.storeSlug}`} className="flex items-center gap-3 p-4 glass rounded-xl hover:bg-white/80 transition-colors">
+              <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
+                <SafeImage src={product.vendor.storeLogo} alt={product.vendor.storeName}
+                  className="w-full h-full rounded-full object-cover" fallbackClass="text-xl" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">Sold by</p>
@@ -286,12 +291,9 @@ export default function ProductDetail() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
             {related.map((p) => (
               <Link key={p.id} to={`/product/${p.slug}`} className="card group">
-                <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
-                  {p.images?.[0] ? (
-                    <img src={p.images[0].url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <span className="text-4xl text-gray-300">🌿</span>
-                  )}
+                <div className="aspect-square bg-gray-100/70 flex items-center justify-center overflow-hidden">
+                  <SafeImage src={p.images?.[0]?.url} alt={p.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <div className="p-4">
                   <h3 className="font-medium text-gray-900 group-hover:text-primary-600">{p.name}</h3>

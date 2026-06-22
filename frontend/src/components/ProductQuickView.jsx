@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
+import SafeImage from './SafeImage';
 
 export default function ProductQuickView({ product, onClose }) {
   const [imgIndex, setImgIndex] = useState(0);
@@ -34,11 +35,8 @@ export default function ProductQuickView({ product, onClose }) {
 
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/2 bg-gray-100/50 flex items-center justify-center relative">
-            {currentImg ? (
-              <img src={currentImg.url} alt={product.name} className="w-full h-64 md:h-80 object-cover" />
-            ) : (
-              <span className="text-6xl text-gray-300">🌿</span>
-            )}
+            <SafeImage src={currentImg?.url} alt={product.name}
+              className="w-full h-64 md:h-80 object-cover" fallbackClass="text-6xl" />
             {images.length > 1 && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
                 {images.map((_, i) => (

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../lib/api';
 import ProductQuickView from '../components/ProductQuickView';
+import SafeImage from '../components/SafeImage';
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -46,11 +47,8 @@ export default function Search() {
             {products.map((product) => (
               <div key={product.id} onClick={() => setSelectedProduct(product)} className="card group cursor-pointer">
                 <div className="aspect-square bg-gray-100/70 flex items-center justify-center overflow-hidden">
-                  {product.images?.[0] ? (
-                    <img src={product.images[0].url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <span className="text-4xl text-gray-300">🌿</span>
-                  )}
+                  <SafeImage src={product.images?.[0]?.url} alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <div className="p-4">
                   <p className="text-xs text-gray-500 uppercase mb-1">{product.vendor?.storeName}</p>

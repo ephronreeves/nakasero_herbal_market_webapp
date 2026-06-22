@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,12 +10,13 @@ export default function Login() {
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
-  if (user) {
+  useEffect(() => {
+    if (!user) return;
     const role = user.role;
     if (role === 'ADMIN') navigate('/admin/dashboard');
     else if (role === 'VENDOR') navigate('/vendor/dashboard');
     else navigate('/dashboard');
-  }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

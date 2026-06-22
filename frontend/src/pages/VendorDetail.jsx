@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../lib/api';
+import SafeImage from '../components/SafeImage';
 
 function parseStoreDescription(text) {
   if (!text) return { about: '', specialties: '', hours: '' };
@@ -59,11 +60,14 @@ export default function VendorDetail() {
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="w-28 h-28 shrink-0 bg-white shadow-md rounded-full flex items-center justify-center text-5xl overflow-hidden ring-4 ring-white">
             {vendor.storeLogo ? (
-              <img src={vendor.storeLogo} alt={vendor.storeName} className="w-full h-full object-cover" />
+              <SafeImage src={vendor.storeLogo} alt={vendor.storeName}
+                className="w-full h-full object-cover" fallbackClass="text-5xl" />
             ) : (
-              vendor.storeSlug === 'nakasero-spice-house' ? '🌶️' :
-              vendor.storeSlug === 'kampala-grain-seed-co' ? '🌾' :
-              vendor.storeSlug === 'jinja-herbal-remedies' ? '🌿' : '🏪'
+              <span className="text-5xl">
+                {vendor.storeSlug === 'nakasero-spice-house' ? '🌶️' :
+                 vendor.storeSlug === 'kampala-grain-seed-co' ? '🌾' :
+                 vendor.storeSlug === 'jinja-herbal-remedies' ? '🌿' : '🏪'}
+              </span>
             )}
           </div>
           <div className="text-center sm:text-left">
@@ -168,12 +172,9 @@ export default function VendorDetail() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => (
               <Link key={product.id} to={`/product/${product.slug}`} className="card group hover:shadow-lg transition-shadow">
-                <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
-                  {product.images?.[0] ? (
-                    <img src={product.images[0].url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <span className="text-4xl text-gray-300">🌿</span>
-                  )}
+                <div className="aspect-square bg-gray-100/70 flex items-center justify-center overflow-hidden">
+                  <SafeImage src={product.images?.[0]?.url} alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <div className="p-4">
                   <p className="text-xs text-gray-500 uppercase tracking-wide">{product.category?.name}</p>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../lib/api';
+import SafeImage from '../components/SafeImage';
 
 export default function Vendors() {
   const [vendors, setVendors] = useState([]);
@@ -29,9 +30,8 @@ export default function Vendors() {
           {vendors.map((vendor) => (
             <Link key={vendor.id} to={`/vendor/${vendor.storeSlug}`} className="card p-6 text-center hover:shadow-md transition-shadow group">
               <div className="w-20 h-20 mx-auto bg-primary-100 rounded-full flex items-center justify-center text-3xl mb-4 overflow-hidden">
-                {vendor.storeLogo ? (
-                  <img src={vendor.storeLogo} alt={vendor.storeName} className="w-full h-full object-cover" />
-                ) : '🏪'}
+                <SafeImage src={vendor.storeLogo} alt={vendor.storeName}
+                  className="w-full h-full object-cover" fallbackClass="text-3xl" />
               </div>
               <h3 className="font-semibold text-gray-900 group-hover:text-primary-600">{vendor.storeName}</h3>
               {vendor.storeDescription && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{vendor.storeDescription}</p>}

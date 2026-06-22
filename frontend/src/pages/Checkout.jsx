@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 const paymentMethods = [
@@ -11,6 +12,7 @@ const paymentMethods = [
 ];
 
 export default function Checkout() {
+  const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [placing, setPlacing] = useState(false);
@@ -24,13 +26,14 @@ export default function Checkout() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!user) { navigate('/login'); return; }
     api.get('/cart')
       .then(({ data }) => {
-        if (!data.items?.length) {
+        if (!data?.length) {
           navigate('/cart');
           return;
         }
-        setItems(data.items);
+        setItems(data);
       })
       .catch(() => toast.error('Failed to load cart'))
       .finally(() => setLoading(false));

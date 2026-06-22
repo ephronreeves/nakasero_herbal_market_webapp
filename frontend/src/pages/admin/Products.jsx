@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../lib/api';
+import SafeImage from '../../components/SafeImage';
 import toast from 'react-hot-toast';
 
 export default function AdminProducts() {
@@ -53,7 +54,7 @@ export default function AdminProducts() {
               <div key={product.id} className="card p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
-                    {product.images?.[0] ? <img src={product.images[0].url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl text-gray-300">🌿</div>}
+                    {product.images?.[0] ? <SafeImage src={product.images[0].url} alt={product.name} className="w-full h-full object-cover" fallbackClass="text-xl" /> : <div className="w-full h-full flex items-center justify-center text-xl text-gray-300">🌿</div>}
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{product.name}</p>

@@ -3,7 +3,7 @@ const path = require('path');
 const sharp = require('sharp');
 
 const STORAGE_DRIVER = process.env.STORAGE_DRIVER || 'local';
-const UPLOAD_DIR = path.join(__dirname, '../../uploads');
+const UPLOAD_DIR = path.join(__dirname, '../../../uploads');
 
 class LocalStorage {
   async upload(file, subDir = 'products') {
@@ -24,7 +24,7 @@ class LocalStorage {
     }
 
     return {
-      url: `/uploads/${subDir}/${filename}`,
+      url: `/api/uploads/${subDir}/${filename}`,
       filename,
       path: filepath,
     };

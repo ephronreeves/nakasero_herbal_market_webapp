@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
-import toast from 'react-hot-toast';
+import SafeImage from '../../components/SafeImage';
 
 export default function CustomerWishlist() {
   const [items, setItems] = useState([]);
@@ -54,12 +54,9 @@ export default function CustomerWishlist() {
           {products.map((product) => (
             <div key={product.id} className="card group">
               <Link to={`/product/${product.slug}`}>
-                <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
-                  {product.images?.[0] ? (
-                    <img src={product.images[0].url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <span className="text-4xl text-gray-300">🌿</span>
-                  )}
+                <div className="aspect-square bg-gray-100/70 flex items-center justify-center overflow-hidden">
+                  <SafeImage src={product.images?.[0]?.url} alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
               </Link>
               <div className="p-4">

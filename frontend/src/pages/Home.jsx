@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../lib/api';
 import ProductQuickView from '../components/ProductQuickView';
+import SafeImage from '../components/SafeImage';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -74,11 +75,8 @@ export default function Home() {
             {products.map((product) => (
               <div key={product.id} onClick={() => setSelectedProduct(product)} className="card group cursor-pointer">
                 <div className="aspect-square bg-gray-100/70 flex items-center justify-center overflow-hidden">
-                  {product.images?.[0] ? (
-                    <img src={product.images[0].url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <span className="text-4xl text-gray-300">🌿</span>
-                  )}
+                  <SafeImage src={product.images?.[0]?.url} alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <div className="p-4">
                   <p className="text-xs text-gray-500 uppercase">{product.vendor?.storeName}</p>
@@ -108,9 +106,9 @@ export default function Home() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {vendors.map((vendor) => (
                 <Link key={vendor.id} to={`/vendor/${vendor.storeSlug}`} className="card p-6 text-center hover:shadow-md transition-shadow">
-                  <div className="w-16 h-16 mx-auto bg-primary-100 rounded-full flex items-center justify-center text-2xl mb-3">
-                    {vendor.storeLogo ? <img src={vendor.storeLogo} className="w-full h-full rounded-full object-cover" /> : '🏪'}
-                  </div>
+                      <div className="w-16 h-16 mx-auto bg-primary-100 rounded-full flex items-center justify-center text-2xl mb-3 overflow-hidden">
+                        {vendor.storeLogo ? <SafeImage src={vendor.storeLogo} alt={vendor.storeName} className="w-full h-full rounded-full object-cover" fallbackClass="text-2xl" /> : '🏪'}
+                      </div>
                   <h3 className="font-medium text-gray-900">{vendor.storeName}</h3>
                   <p className="text-sm text-gray-500 mt-1">{vendor._count?.products || 0} products</p>
                   {vendor.verificationBadge !== 'NONE' && (

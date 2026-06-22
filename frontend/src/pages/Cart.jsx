@@ -1,19 +1,26 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import SafeImage from '../components/SafeImage';
 
 export default function Cart() {
+  const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(null);
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     api.get('/cart')
-      .then(({ data }) => setItems(data.items || []))
+      .then(({ data }) => setItems(data || []))
       .catch(() => toast.error('Failed to load cart'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
 
   const updateQuantity = async (itemId, quantity) => {
     if (quantity < 1) return;
@@ -65,11 +72,8 @@ export default function Cart() {
               return (
                 <div key={item.id} className="card p-4 flex gap-4">
                   <Link to={`/product/${item.product.slug}`} className="w-24 h-24 shrink-0 bg-gray-100 rounded-lg overflow-hidden">
-                    {item.product.images?.[0] ? (
-                      <img src={item.product.images[0].url} alt={item.product.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300">🌿</div>
-                    )}
+                  <SafeImage src={item.product.images?.[0]?.url} alt={item.product.name}
+                    className="w-full h-full object-cover" fallbackClass="text-2xl" />
                   </Link>
                   <div className="flex-1 min-w-0">
                     <Link to={`/product/${item.product.slug}`} className="font-medium text-gray-900 hover:text-primary-600">{item.product.name}</Link>

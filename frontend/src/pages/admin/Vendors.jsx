@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
+import SafeImage from '../../components/SafeImage';
 import toast from 'react-hot-toast';
 
 export default function AdminVendors() {
@@ -83,8 +84,9 @@ export default function AdminVendors() {
                   <tr key={vendor.id} className="text-sm hover:bg-gray-50">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-lg overflow-hidden shrink-0">
-                          {vendor.storeLogo ? <img src={vendor.storeLogo} className="w-full h-full object-cover" /> : '🏪'}
+                        <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+                          <SafeImage src={vendor.storeLogo} alt={vendor.storeName}
+                            className="w-full h-full rounded-full object-cover" fallbackClass="text-lg bg-primary-100" />
                         </div>
                         <div>
                           <Link to={`/vendor/${vendor.storeSlug}`} className="font-medium text-gray-900 hover:text-primary-600">{vendor.storeName}</Link>
