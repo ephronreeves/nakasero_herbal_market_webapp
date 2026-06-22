@@ -35,6 +35,14 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
+      boxShadow: {
+        glass: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+        'glass-sm': '0 4px 16px 0 rgba(31, 38, 135, 0.10)',
+        'glass-lg': '0 12px 48px 0 rgba(31, 38, 135, 0.18)',
+      },
+      backdropBlur: {
+        glass: '12px',
+      },
     },
   },
   plugins: [],

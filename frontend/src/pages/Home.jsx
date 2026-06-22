@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../lib/api';
+import ProductQuickView from '../components/ProductQuickView';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -70,8 +72,8 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => (
-              <Link key={product.id} to={`/product/${product.slug}`} className="card group">
-                <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+              <div key={product.id} onClick={() => setSelectedProduct(product)} className="card group cursor-pointer">
+                <div className="aspect-square bg-gray-100/70 flex items-center justify-center overflow-hidden">
                   {product.images?.[0] ? (
                     <img src={product.images[0].url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
@@ -90,7 +92,7 @@ export default function Home() {
                     )}
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
@@ -130,6 +132,10 @@ export default function Home() {
           <Link to="/register" className="btn-primary text-lg px-8 py-3">Register as Vendor</Link>
         </div>
       </section>
+
+      {selectedProduct && (
+        <ProductQuickView product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      )}
     </div>
   );
 }

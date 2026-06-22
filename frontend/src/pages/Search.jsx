@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../lib/api';
+import ProductQuickView from '../components/ProductQuickView';
 
 export default function Search() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     if (!query) return;
@@ -42,8 +44,8 @@ export default function Search() {
           <p className="text-sm text-gray-500 mb-4">{products.length} result{products.length !== 1 ? 's' : ''} found</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => (
-              <Link key={product.id} to={`/product/${product.slug}`} className="card group">
-                <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+              <div key={product.id} onClick={() => setSelectedProduct(product)} className="card group cursor-pointer">
+                <div className="aspect-square bg-gray-100/70 flex items-center justify-center overflow-hidden">
                   {product.images?.[0] ? (
                     <img src={product.images[0].url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
@@ -58,10 +60,14 @@ export default function Search() {
                     {product.discountPrice && <span className="ml-2 text-sm text-gray-400 line-through">UGX {product.price}</span>}
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </>
+      )}
+
+      {selectedProduct && (
+        <ProductQuickView product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
     </div>
   );

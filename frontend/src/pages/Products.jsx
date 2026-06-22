@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../lib/api';
+import ProductQuickView from '../components/ProductQuickView';
 
 export default function Products() {
   const [searchParams] = useSearchParams();
@@ -8,6 +9,7 @@ export default function Products() {
   const [pagination, setPagination] = useState({ page: 1, total: 0, pages: 1 });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     minPrice: '',
@@ -85,8 +87,8 @@ export default function Products() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product) => (
-                  <Link key={product.id} to={`/product/${product.slug}`} className="card group">
-                    <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+                  <div key={product.id} onClick={() => setSelectedProduct(product)} className="card group cursor-pointer">
+                    <div className="aspect-square bg-gray-100/70 flex items-center justify-center overflow-hidden">
                       {product.images?.[0] ? (
                         <img src={product.images[0].url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
@@ -104,7 +106,7 @@ export default function Products() {
                         <p className="text-sm text-gray-500 mt-1">{product.averageRating} ⭐ ({product._count.reviews})</p>
                       )}
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
 
@@ -122,6 +124,10 @@ export default function Products() {
           )}
         </div>
       </div>
+
+      {selectedProduct && (
+        <ProductQuickView product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      )}
     </div>
   );
 }

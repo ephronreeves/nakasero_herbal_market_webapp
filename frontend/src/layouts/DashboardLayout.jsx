@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
         <button onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden flex items-center gap-2 text-sm text-gray-600 bg-white border rounded-lg px-4 py-2.5 shadow-sm mb-2 self-start">
+          className="lg:hidden flex items-center gap-2 text-sm text-gray-600 glass-strong rounded-xl px-4 py-2.5 mb-2 self-start">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -51,16 +51,16 @@ export default function DashboardLayout({ children }) {
 
         <>
           <aside className={`${sidebarOpen ? 'block' : 'hidden'} lg:block lg:w-64 shrink-0`}>
-            <nav className="space-y-1">
+            <nav className="space-y-1 p-2 glass rounded-2xl">
               {links.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     location.pathname === link.path
-                      ? 'bg-primary-50 text-primary-700 border border-primary-200'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-primary-600/20 backdrop-blur-sm text-primary-700 border border-primary-300/40 shadow-glass-sm'
+                      : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
                   }`}
                 >
                   <span>{link.icon}</span>
@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }) {
             </nav>
           </aside>
           {sidebarOpen && (
-            <div className="fixed inset-0 bg-black/20 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+            <div className="fixed inset-0 bg-black/10 backdrop-blur-sm z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
           )}
         </>
 
