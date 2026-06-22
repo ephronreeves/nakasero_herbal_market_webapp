@@ -19,7 +19,7 @@ export default function ProductDetail() {
     setLoading(true);
     api.get(`/products/${slug}`)
       .then(({ data }) => {
-        setProduct(data.product);
+        setProduct(data);
         setRelated(data.related || []);
       })
       .catch(() => toast.error('Failed to load product'))
@@ -42,10 +42,10 @@ export default function ProductDetail() {
     e.preventDefault();
     setSubmittingReview(true);
     try {
-      const { data } = await api.post(`/products/${product.id}/reviews`, { rating: reviewRating, text: reviewText });
+      const { data } = await api.post(`/products/${product.id}/reviews`, { rating: reviewRating, comment: reviewText });
       setProduct((prev) => ({
         ...prev,
-        reviews: [data.review, ...prev.reviews],
+        reviews: [data, ...prev.reviews],
         _count: { ...prev._count, reviews: (prev._count?.reviews || 0) + 1 },
         averageRating: data.averageRating,
       }));
@@ -150,6 +150,78 @@ export default function ProductDetail() {
             </div>
           )}
 
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {product.sku && (
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase">SKU</h3>
+                <p className="text-sm text-gray-800">{product.sku}</p>
+              </div>
+            )}
+            {product.weight && (
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase">Weight</h3>
+                <p className="text-sm text-gray-800">{product.weight}{product.weightUnit || 'g'}</p>
+              </div>
+            )}
+            {product.manufacturer && (
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase">Manufacturer</h3>
+                <p className="text-sm text-gray-800">{product.manufacturer}</p>
+              </div>
+            )}
+            {product.countryOfOrigin && (
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase">Country of Origin</h3>
+                <p className="text-sm text-gray-800">{product.countryOfOrigin}</p>
+              </div>
+            )}
+            {product.registrationNumber && (
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase">Reg. Number</h3>
+                <p className="text-sm text-gray-800">{product.registrationNumber}</p>
+              </div>
+            )}
+            {product.batchNumber && (
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase">Batch Number</h3>
+                <p className="text-sm text-gray-800">{product.batchNumber}</p>
+              </div>
+            )}
+            {product.manufacturingDate && (
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase">Manufacturing Date</h3>
+                <p className="text-sm text-gray-800">{new Date(product.manufacturingDate).toLocaleDateString()}</p>
+              </div>
+            )}
+            {product.stockQuantity !== undefined && (
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase">Stock</h3>
+                <p className="text-sm text-gray-800">{product.stockQuantity} units</p>
+              </div>
+            )}
+          </div>
+
+          {product.contraindications && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <h3 className="text-sm font-semibold text-red-800">⛔ Contraindications</h3>
+              <p className="text-sm text-red-700">{product.contraindications}</p>
+            </div>
+          )}
+
+          {product.sideEffects && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <h3 className="text-sm font-semibold text-red-800">⚠ Side Effects</h3>
+              <p className="text-sm text-red-700">{product.sideEffects}</p>
+            </div>
+          )}
+
+          {product.storageInstructions && (
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-gray-900">Storage Instructions</h3>
+              <p className="text-gray-600">{product.storageInstructions}</p>
+            </div>
+          )}
+
           <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center border rounded-lg">
               <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-2 text-gray-600 hover:bg-gray-100">-</button>
@@ -197,7 +269,7 @@ export default function ProductDetail() {
             <div key={review.id} className="card p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">{review.user?.name || 'Anonymous'}</span>
+                  <span className="font-medium text-gray-900">{review.user ? `${review.user.firstName} ${review.user.lastName || ''}` : 'Anonymous'}</span>
                   <span className="text-yellow-400">{'★'.repeat(review.rating)}</span>
                 </div>
                 <span className="text-sm text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</span>

@@ -42,15 +42,24 @@
    - Product name and price (UGX)
    - Average rating and review count
    - Vendor name
+6. **Product Quick View** — Click any product card to open a glass modal showing:
+   - Product images with dot navigation
+   - Discount percentage badge
+   - Full pricing (with strikethrough for discounts)
+   - Stock status and available units
+   - Short description and ingredients
+   - Weight and vendor info
+   - "View Full Details" button to navigate to the full product page
 
 *[Screenshot: Home page showing featured herbal products, category navigation, and search bar]*
 
 ### 1.2 Product Details
 
-1. Click any product card to view **Product Detail** page
-2. See full description, ingredients, usage instructions, and warnings
-3. View vendor information and store name
-4. Set quantity and click **Add to Cart**
+1. Click any product card (or "View Full Details" from the quick view) to view **Product Detail** page
+2. See full description, ingredients, usage instructions, warnings, contraindications, and side effects
+3. View product metadata: SKU, weight, manufacturer, country of origin, registration & batch numbers, manufacturing date, stock quantity
+4. View vendor information and store name
+5. Set quantity and click **Add to Cart**
 
 *[Screenshot: Product detail page with full description, images, reviews, and Add to Cart button]*
 

@@ -339,7 +339,34 @@ Each vendor's public page (`/vendor/:slug`) displays:
 | **Hours** | Operating hours |
 | **Products** | Full product grid with images, prices, links to detail pages |
 
-### 7.3 Frontend Visualization Stack
+### 7.3 UI/UX Design: Glassmorphism with Product Quick View
+
+The frontend implements a **Glassmorphism** design system characterized by:
+
+| Element | Implementation |
+|---|---|
+| **Glass panels** | `backdrop-blur-xl` + semi-transparent backgrounds (`bg-white/70`) with grey borders (`border-gray-200/30`) |
+| **Gradient background** | Fixed `from-gray-50 via-primary-50/50 to-herbal-50/30` gradient across all pages |
+| **Soft shadows** | Custom `shadow-glass` / `shadow-glass-sm` / `shadow-glass-lg` box shadows |
+| **Frosted header** | Sticky header with `.glass-strong` backing, gradient brand text |
+| **Dark glass footer** | `bg-gray-900/70` with `backdrop-blur-xl`, white text at varying opacities |
+| **Dashboard sidebar** | Glass tray with frosted active-link highlights |
+| **Buttons & inputs** | Semi-transparent colored backgrounds with blurred edges and glass borders |
+| **Colour palette** | Green (`primary`) + Purple (`herbal`) brand tones, balanced with grey accents |
+
+**Product Quick View Modal** (`src/components/ProductQuickView.jsx`):
+- Triggered by clicking any product card on Home, Products, or Search pages (replaces direct link navigation)
+- React Portal renders the modal above all content
+- Displays: multiple images with dot navigation, discount badge, vendor name, pricing, rating, stock status, short description, ingredients, weight
+- "View Full Details" link navigates to the full product detail page
+- Closes on backdrop click, Escape key, or close button
+
+**Product Detail Page Enhancements** (`src/pages/ProductDetail.jsx`):
+- Full product metadata grid: SKU, weight, manufacturer, country of origin, registration number, batch number, manufacturing date, stock quantity
+- Contraindications and side effects sections with red warning styling
+- Storage instructions section
+
+### 7.4 Frontend Visualization Stack
 
 ```javascript
 // Recharts example (vendor/Inventory.jsx)

@@ -2,12 +2,12 @@
 
 **Trusted Herbal Marketplace** — Victoria University coursework 3 webapp project.
 
-A multi-vendor e-commerce marketplace dedicated to herbal medicine and natural health products.
+A multi-vendor e-commerce marketplace dedicated to herbal medicine and natural health products with a Glassmorphism UI design.
 
 ## Tech Stack
 
-- **Frontend:** React + Vite + Tailwind CSS
-- **Backend:** Node.js + Express + Prisma ORM
+- **Frontend:** React 18 + Vite 5 + Tailwind CSS 3 (Glassmorphism design system)
+- **Backend:** Node.js + Express 4 + Prisma ORM 5
 - **Database:** PostgreSQL 16
 - **Cache:** Redis 7
 - **Containerization:** Docker + Docker Compose
@@ -53,11 +53,7 @@ docker-compose exec backend node prisma/seed.js
 | Admin    | admin@emitidagala.com       | admin123    |
 | Vendor   | spices@emitidagala.com      | vendor123   |
 | Vendor   | grains@emitidagala.com      | vendor123   |
-<<<<<<< HEAD
-| Vendor   | herbal@emitidagala.com       | vendor123   |
-=======
 | Vendor   | herbal@emitidagala.com      | vendor123   |
->>>>>>> 32c5519 (Multi-vendor e-commerce platform with payment methods, admin settings, mobile optimization, and mock reviews)
 | Customer | alice@example.com           | customer123 |
 | Customer | bob@example.com             | customer123 |
 | Customer | carol@example.com           | customer123 |
@@ -65,12 +61,13 @@ docker-compose exec backend node prisma/seed.js
 ## Project Structure
 
 ```
-├── frontend/          # React + Vite + Tailwind CSS
+├── frontend/          # React + Vite + Tailwind CSS (Glassmorphism UI)
 │   ├── src/
-│   │   ├── pages/     # Page components
-│   │   ├── layouts/   # Layout components
-│   │   ├── contexts/  # React contexts
-│   │   └── lib/       # Utilities (API client)
+│   │   ├── components/  # Reusable components (ProductQuickView, etc.)
+│   │   ├── pages/       # Page components (Home, Products, ProductDetail, etc.)
+│   │   ├── layouts/     # Layout components (MainLayout, DashboardLayout)
+│   │   ├── contexts/    # React contexts (AuthContext)
+│   │   └── lib/         # Utilities (API client)
 │   └── ...
 ├── backend/           # Node.js + Express + Prisma
 │   ├── src/
@@ -80,7 +77,7 @@ docker-compose exec backend node prisma/seed.js
 │   │   ├── services/     # External services (storage, notifications)
 │   │   └── utils/        # Utilities (audit, slug)
 │   ├── prisma/
-│   │   ├── schema.prisma # Database schema
+│   │   ├── schema.prisma # Database schema (16 models)
 │   │   └── seed.js       # Database seeder
 │   └── ...
 ├── database/
@@ -105,12 +102,8 @@ docker-compose exec backend node prisma/seed.js
 - `GET /api/auth/me` - Current user
 
 ### Products
-<<<<<<< HEAD
-- `GET /api/products` - List products (paginated, filterable)
-=======
 - `GET /api/products` - List products (filterable: `?category=`, `?vendor=`, `?status=`, `?sort=`, `?page=`, `?limit=`)
->>>>>>> 32c5519 (Multi-vendor e-commerce platform with payment methods, admin settings, mobile optimization, and mock reviews)
-- `GET /api/products/:slug` - Product detail
+- `GET /api/products/:slug` - Product detail (with images, reviews, related products)
 - `POST /api/products` - Create product (Vendor/Admin)
 - `PUT /api/products/:id` - Update product (Vendor/Admin)
 - `DELETE /api/products/:id` - Delete product (Vendor/Admin)
@@ -128,13 +121,8 @@ docker-compose exec backend node prisma/seed.js
 - `GET /api/vendors` - List vendors
 - `GET /api/vendors/:slug` - Vendor detail
 - `POST /api/vendors/register` - Register as vendor
-<<<<<<< HEAD
-- `GET /api/vendor/store` - Get own store settings (Vendor)
-- `PUT /api/vendor/store` - Update store settings (Vendor)
-=======
 - `GET /api/vendors/me/store` - Get own store (Vendor)
 - `PUT /api/vendors/profile` - Update vendor profile (Vendor)
->>>>>>> 32c5519 (Multi-vendor e-commerce platform with payment methods, admin settings, mobile optimization, and mock reviews)
 
 ### Cart
 - `GET /api/cart` - Get cart
@@ -144,7 +132,7 @@ docker-compose exec backend node prisma/seed.js
 - `DELETE /api/cart` - Clear cart
 
 ### Wishlist
-- `GET /api/wishlist` - List wishlist
+- `GET /api/wishlist` - Get wishlist
 - `POST /api/wishlist` - Add to wishlist
 - `DELETE /api/wishlist/:id` - Remove from wishlist
 
@@ -156,30 +144,6 @@ docker-compose exec backend node prisma/seed.js
 - `PATCH /api/orders/:id/status` - Update order status (Vendor/Admin)
 
 ### Payments
-<<<<<<< HEAD
-- `GET /api/payments/methods` - List payment methods
-- `POST /api/payments/initiate` - Initiate payment (any method)
-- `GET /api/payments/verify/:orderId` - Verify payment
-- `POST /api/payments/callback` - Payment provider callback
-
-### Reviews
-- `GET /api/reviews/product/:productId` - List product reviews
-- `POST /api/reviews/product/:productId` - Submit a review
-
-### Admin
-- `GET /api/admin/dashboard` - Platform analytics
-- `GET /api/admin/vendors` - Manage vendors
-- `PATCH /api/admin/vendors/:id` - Update vendor status/commission
-- `GET /api/admin/products` - Manage products
-- `GET /api/admin/orders` - Manage orders
-- `GET /api/admin/payments` - List all payments
-- `GET /api/admin/reviews` - List all reviews
-- `PATCH /api/admin/reviews/:id` - Moderate review
-- `DELETE /api/admin/reviews/:id` - Delete review
-- `POST /api/admin/reviews/generate-mock` - Generate mock reviews
-- `GET /api/admin/settings` - Get platform settings
-- `PUT /api/admin/settings` - Update platform settings
-=======
 - `GET /api/payments/methods` - List available payment methods
 - `POST /api/payments/initiate` - Initiate payment (MTN, Airtel, Visa, Apple Pay)
 - `POST /api/payments/callback` - Generic payment callback
@@ -207,8 +171,8 @@ docker-compose exec backend node prisma/seed.js
 
 ### Admin
 - `GET /api/admin/dashboard` - Platform analytics overview
-- `GET /api/admin/vendors` - List vendors
-- `PATCH /api/admin/vendors/:id` - Update vendor status
+- `GET /api/admin/vendors` - List vendors (filter: `?status=`)
+- `PATCH /api/admin/vendors/:id` - Update vendor status/commission
 - `GET /api/admin/products` - Manage products (filter: `?status=`)
 - `GET /api/admin/orders` - Manage orders (filter: `?status=`)
 - `GET /api/admin/payments` - List all payments
@@ -222,29 +186,14 @@ docker-compose exec backend node prisma/seed.js
 ### Uploads
 - `POST /api/uploads` - Upload single file
 - `POST /api/uploads/multiple` - Upload multiple files (max 10)
->>>>>>> 32c5519 (Multi-vendor e-commerce platform with payment methods, admin settings, mobile optimization, and mock reviews)
 
 ### Search
 - `GET /api/search?q=` - Full-text search
 - `GET /api/search/suggestions?q=` - Search suggestions
 
-<<<<<<< HEAD
-### Uploads
-- `GET /api/uploads/*` - Serve uploaded files (images, logos, banners)
-
 ### Health
 - `GET /api/health` - Health check
 
-### Wishlist
-- `GET /api/wishlist` - Get wishlist
-- `POST /api/wishlist` - Add to wishlist
-- `DELETE /api/wishlist/:id` - Remove from wishlist
-
-=======
-### Health
-- `GET /api/health` - Health check
-
->>>>>>> 32c5519 (Multi-vendor e-commerce platform with payment methods, admin settings, mobile optimization, and mock reviews)
 ## Database Backup
 
 ### Automated Backup (Docker)
@@ -269,11 +218,7 @@ gunzip -c database/backups/emitidagala_20240101.sql.gz | docker-compose exec -T 
 
 ## Deployment
 
-<<<<<<< HEAD
-### Local Development
-=======
 ### Local (Docker Compose)
->>>>>>> 32c5519 (Multi-vendor e-commerce platform with payment methods, admin settings, mobile optimization, and mock reviews)
 ```bash
 # Build and start all services
 docker-compose up -d --build
@@ -285,14 +230,6 @@ docker-compose exec backend npx prisma db push
 docker-compose exec backend node prisma/seed.js
 ```
 
-<<<<<<< HEAD
-### Cloud Production (VPS)
-```bash
-docker-compose -f docker-compose.prod.yml up -d --build
-```
-
-Requirements: Ubuntu 24.04+, Docker, domain with SSL.
-=======
 ### Cloud Deployment (VPS)
 The application is designed for deployment to any VPS with Docker:
 - Hetzner, AWS EC2, DigitalOcean Droplet, or any Linux VPS
@@ -324,7 +261,14 @@ The application is designed for deployment to any VPS with Docker:
    docker-compose logs -f backend
    docker-compose logs -f nginx
    ```
->>>>>>> 32c5519 (Multi-vendor e-commerce platform with payment methods, admin settings, mobile optimization, and mock reviews)
+
+## UI Features
+
+- **Glassmorphism Design** — Frosted glass effect with backdrop blur, semi-transparent backgrounds, soft shadows
+- **Grey-toned theme** — Balanced grey accents integrated with green (primary) and purple (herbal) brand colors
+- **Product Quick View** — Click any product card to open a glass modal with full product info (ingredients, stock status, images, pricing) before navigating to detail page
+- **Responsive Layout** — Fully responsive across mobile, tablet, and desktop
+- **Role-based Dashboards** — Tailored interfaces for Customers, Vendors, and Admins
 
 ## Security
 
