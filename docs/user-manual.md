@@ -233,7 +233,23 @@ These pages are public and do not require login to browse.
 1. **Payments** tab — View all payment transactions
 2. **Reviews** tab — Moderate customer reviews (approve/hide)
 
-### 3.6 Platform Settings
+### 3.6 Audit Logs
+
+1. Click **Audit Logs** in the sidebar
+2. View a chronological list of all platform actions: registrations, logins, order creation, vendor approvals, settings changes, and review deletions
+3. Each log entry shows:
+   - **Action type** — Color-coded badge (Registration, Login, Order Created, Vendor Status, etc.)
+   - **Timestamp** — When the action occurred
+   - **Description** — Brief summary of the action
+   - **User** — Who performed the action (name and email)
+   - **Vendor** — Associated vendor store name (if applicable)
+   - **Entity** — Affected database table
+   - **IP Address** — Originating IP
+4. Filter by action type using the dropdown at the top
+5. Navigate through pages using Previous/Next buttons at the bottom
+6. All CRUD operations are automatically logged — no manual entry needed
+
+### 3.7 Platform Settings
 
 1. Click **Settings** in the sidebar
 2. The settings page has **6 tabbed sections**:
@@ -279,6 +295,7 @@ These pages are public and do not require login to browse.
 | Admin Payments | `/admin/payments` | Admin |
 | Admin Settings | `/admin/settings` | Admin |
 | Admin Reviews | `/admin/reviews` | Admin |
+| Admin Audit Logs | `/admin/audit-logs` | Admin |
 
 ---
 
