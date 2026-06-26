@@ -64,6 +64,8 @@ services:
       APP_NAME: ${APP_NAME:-Emiti Dagala}
     volumes:
       - ./uploads:/app/uploads
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
     depends_on:
       postgres:
         condition: service_healthy

@@ -340,7 +340,7 @@ async function main() {
       const vendorAmount = subtotal - commissionAmount;
       const status = orderStatuses[orderIdx % orderStatuses.length];
 
-      const orderNumber = `ORD-${String(++orderIdx).padStart(5, '0')}`;
+      const orderNumber = `ORD-${Date.now()}-${String(++orderIdx).padStart(5, '0')}`;
       const order = await prisma.order.create({
         data: {
           orderNumber,
@@ -401,6 +401,43 @@ async function main() {
     }
   }
   console.log('Orders created with items and payments');
+
+  // ── Audit Logs ──
+  await prisma.auditLog.deleteMany();
+  const allUsers = await prisma.user.findMany();
+  const allVendorsList = await prisma.vendor.findMany();
+  const seedActions = [
+    { action: 'USER_REGISTERED', entity: 'User', desc: 'Admin account created' },
+    { action: 'USER_REGISTERED', entity: 'User', desc: 'Vendor account created (Nakasero Spice House)' },
+    { action: 'USER_REGISTERED', entity: 'User', desc: 'Vendor account created (Kampala Grain & Seed Co.)' },
+    { action: 'USER_REGISTERED', entity: 'User', desc: 'Vendor account created (Jinja Herbal Remedies)' },
+    { action: 'USER_REGISTERED', entity: 'User', desc: 'Customer account created (Alice)' },
+    { action: 'USER_REGISTERED', entity: 'User', desc: 'Customer account created (Bob)' },
+    { action: 'USER_REGISTERED', entity: 'User', desc: 'Customer account created (Carol)' },
+    { action: 'VENDOR_STATUS_UPDATED', entity: 'Vendor', desc: 'Nakasero Spice House approved' },
+    { action: 'VENDOR_STATUS_UPDATED', entity: 'Vendor', desc: 'Kampala Grain & Seed Co. approved' },
+    { action: 'VENDOR_STATUS_UPDATED', entity: 'Vendor', desc: 'Jinja Herbal Remedies approved' },
+    { action: 'SETTINGS_UPDATED', entity: 'SiteSetting', desc: 'Initial platform settings configured' },
+    { action: 'ORDER_CREATED', entity: 'Order', desc: 'Seed orders created for demonstration' },
+  ];
+
+  for (let i = 0; i < seedActions.length; i++) {
+    const sa = seedActions[i];
+    const user = allUsers[i % allUsers.length];
+    const vendor = allVendorsList.length > 0 ? allVendorsList[i % allVendorsList.length] : null;
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        vendorId: vendor?.id || null,
+        action: sa.action,
+        entity: sa.entity,
+        description: sa.desc,
+        ipAddress: '127.0.0.1',
+        userAgent: 'Seed-Script/1.0',
+      },
+    });
+  }
+  console.log('Audit logs created');
 
   console.log('\n✅ Seed completed successfully!');
   console.log('\n─── Login Credentials ───');

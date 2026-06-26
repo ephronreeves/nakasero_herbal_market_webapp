@@ -263,6 +263,36 @@ exports.deleteReview = async (req, res, next) => {
   }
 };
 
+exports.getAuditLogs = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 50, action, entity } = req.query;
+    const where = {};
+    if (action) where.action = action;
+    if (entity) where.entity = entity;
+
+    const [logs, total] = await Promise.all([
+      prisma.auditLog.findMany({
+        where,
+        include: {
+          user: { select: { id: true, firstName: true, lastName: true, email: true } },
+          vendor: { select: { id: true, storeName: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: parseInt(limit),
+      }),
+      prisma.auditLog.count({ where }),
+    ]);
+
+    res.json({
+      logs,
+      pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / limit) },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.generateMockReviews = async (req, res, next) => {
   try {
     const products = await prisma.product.findMany({

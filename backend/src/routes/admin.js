@@ -14,6 +14,7 @@ router.get('/orders', ctrl.getOrders);
 router.get('/payments', ctrl.getPayments);
 router.get('/settings', ctrl.getSettings);
 router.put('/settings', ctrl.updateSettings);
+router.get('/audit-logs', ctrl.getAuditLogs);
 router.get('/reviews', ctrl.getReviews);
 router.patch('/reviews/:id', ctrl.moderateReview);
 router.delete('/reviews/:id', ctrl.deleteReview);

@@ -26,6 +26,7 @@ const adminLinks = [
   { path: '/admin/orders', label: 'Orders', icon: '📦' },
   { path: '/admin/payments', label: 'Payments', icon: '💳' },
   { path: '/admin/reviews', label: 'Reviews', icon: '⭐' },
+  { path: '/admin/audit-logs', label: 'Audit Logs', icon: '📋' },
   { path: '/admin/settings', label: 'Settings', icon: '⚙️' },
 ];
 

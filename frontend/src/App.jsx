@@ -35,6 +35,7 @@ import AdminOrders from './pages/admin/Orders';
 import AdminPayments from './pages/admin/Payments';
 import AdminSettings from './pages/admin/Settings';
 import AdminReviews from './pages/admin/Reviews';
+import AdminAuditLogs from './pages/admin/AuditLogs';
 
 function ProtectedRoute({ children, roles }) {
   const { user, loading } = useAuth();
@@ -80,6 +81,7 @@ export default function App() {
         <Route path="/admin/payments" element={<ProtectedRoute roles={['ADMIN']}><DashboardLayout><AdminPayments /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute roles={['ADMIN']}><DashboardLayout><AdminSettings /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/reviews" element={<ProtectedRoute roles={['ADMIN']}><DashboardLayout><AdminReviews /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/audit-logs" element={<ProtectedRoute roles={['ADMIN']}><DashboardLayout><AdminAuditLogs /></DashboardLayout></ProtectedRoute>} />
       </Route>
     </Routes>
   );
