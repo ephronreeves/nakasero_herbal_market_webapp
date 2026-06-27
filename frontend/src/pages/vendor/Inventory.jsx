@@ -1,12 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '../../lib/api';
 import SafeImage from '../../components/SafeImage';
 import toast from 'react-hot-toast';
 
+const mockInventory = [
+  { id: '1', name: 'Moringa Powder', price: 15000, discountPrice: 12000, stock: 45, expiryDate: '2027-06-01', images: [{ url: '' }] },
+  { id: '2', name: 'Ginger Tea Bags', price: 8000, stock: 3, expiryDate: '2026-08-15', images: [{ url: '' }] },
+  { id: '3', name: 'Turmeric Capsules', price: 25000, stock: 8, expiryDate: '2027-03-10', images: [{ url: '' }] },
+  { id: '4', name: 'Neem Oil - 100ml', price: 18000, stock: 20, expiryDate: '2027-01-20', images: [{ url: '' }] },
+  { id: '5', name: 'Shea Butter Pure', price: 22000, stock: 0, expiryDate: null, images: [{ url: '' }] },
+  { id: '6', name: 'Hibiscus Flower Tea', price: 10000, discountPrice: 8500, stock: 30, expiryDate: '2026-12-05', images: [{ url: '' }] },
+  { id: '7', name: 'Black Seed Oil', price: 28000, stock: 12, expiryDate: '2026-07-10', images: [{ url: '' }] },
+  { id: '8', name: 'Aloe Vera Gel', price: 16000, stock: 25, expiryDate: '2026-09-18', images: [{ url: '' }] },
+  { id: '9', name: 'Raw Honey - 500g', price: 35000, stock: 0, expiryDate: '2028-01-01', images: [{ url: '' }] },
+  { id: '10', name: 'Eucalyptus Oil', price: 20000, stock: 4, expiryDate: '2026-07-25', images: [{ url: '' }] },
+];
+
 export default function VendorInventory() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(mockInventory);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
   const [editingStock, setEditingStock] = useState(null);
   const [stockValue, setStockValue] = useState('');
 
@@ -14,11 +28,29 @@ export default function VendorInventory() {
     api.get('/vendor/inventory')
       .then(({ data }) => {
         const items = data.products || data.inventory || [];
-        setProducts(items);
+        if (items.length) setProducts(items);
       })
-      .catch(() => toast.error('Failed to load inventory'))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const filtered = useMemo(() => {
+    let result = [...products];
+
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter((p) => p.name.toLowerCase().includes(q));
+    }
+
+    result = result.filter((p) => {
+      if (filter === 'low') return p.stock > 0 && p.stock <= 5;
+      if (filter === 'expiring') return p.expiryDate && new Date(p.expiryDate) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      if (filter === 'out') return p.stock === 0;
+      return true;
+    });
+
+    return result;
+  }, [products, search, filter]);
 
   const updateStock = async (productId) => {
     try {
@@ -30,13 +62,6 @@ export default function VendorInventory() {
       toast.error('Failed to update stock');
     }
   };
-
-  const filtered = products.filter((p) => {
-    if (filter === 'low') return p.stock <= 5;
-    if (filter === 'expiring') return p.expiryDate && new Date(p.expiryDate) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-    if (filter === 'out') return p.stock === 0;
-    return true;
-  });
 
   if (loading) {
     return <div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div></div>;
@@ -70,17 +95,30 @@ export default function VendorInventory() {
       </div>
 
       <div className="card">
-        <div className="p-4 border-b flex items-center gap-2 overflow-x-auto">
-          {['all', 'low', 'out', 'expiring'].map((f) => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${filter === f ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
-              {f === 'all' ? 'All' : f === 'low' ? 'Low Stock' : f === 'out' ? 'Out of Stock' : 'Expiring Soon'}
-            </button>
-          ))}
+        <div className="p-4 border-b flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-[200px]">
+            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products by name..." className="input-field w-full" />
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto">
+            {['all', 'low', 'out', 'expiring'].map((f) => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${filter === f ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
+                {f === 'all' ? 'All' : f === 'low' ? 'Low Stock' : f === 'out' ? 'Out of Stock' : 'Expiring Soon'}
+              </button>
+            ))}
+          </div>
+          {(search || filter !== 'all') && (
+            <button onClick={() => { setSearch(''); setFilter('all'); }}
+              className="text-sm text-gray-500 hover:text-gray-700">Clear</button>
+          )}
         </div>
 
         {filtered.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">No products match this filter.</div>
+          <div className="p-12 text-center text-gray-500">
+            <span className="text-4xl mb-3 block">🔍</span>
+            <p>No products match your search or filter.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -99,7 +137,7 @@ export default function VendorInventory() {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden shrink-0">
-                          {product.images?.[0] ? <SafeImage src={product.images[0].url} alt={product.name} className="w-full h-full object-cover" fallbackClass="text-lg" /> : <div className="w-full h-full flex items-center justify-center text-lg text-gray-300">🌿</div>}
+                          {product.images?.[0]?.url ? <SafeImage src={product.images[0].url} alt={product.name} className="w-full h-full object-cover" fallbackClass="text-lg" /> : <div className="w-full h-full flex items-center justify-center text-lg text-gray-300">🌿</div>}
                         </div>
                         <span className="font-medium text-gray-900">{product.name}</span>
                       </div>

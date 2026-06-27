@@ -14,7 +14,7 @@ export default function Search() {
   useEffect(() => {
     if (!query) return;
     setLoading(true);
-    api.get(`/products?search=${encodeURIComponent(query)}`)
+    api.get(`/search?q=${encodeURIComponent(query)}`)
       .then(({ data }) => setProducts(data.products || []))
       .catch(() => {})
       .finally(() => setLoading(false));
