@@ -283,4 +283,4 @@ The application is designed for deployment to any VPS with Docker:
 
 ## License
 
-MIT
+BYEKWASO EPHRON VICTORIA UNIVERSITY MIT 2026
