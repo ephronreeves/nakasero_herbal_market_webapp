@@ -283,4 +283,4 @@ The application is designed for deployment to any VPS with Docker:
 
 ## License
 
-BYEKWASO EPHRON VICTORIA UNIVERSITY MIT 2026
+Copyright © 2026 Emiti Dagala - Byekwaso Ephron Victoria University. All rights reserved
